@@ -1,95 +1,61 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+// 📁 src/app/page.tsx
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useArticlesStore } from '@/store/articlesStore'
+import { fetchRandomArticles } from '@/lib/fetchRandomArticles'
+import ArticleCard from '@/components/ArticleCard'
+import type { Article } from '@/types/article'
+
+const CARDS_PER_LOAD = 20
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { articles, addArticles } = useArticlesStore()
+  const [loading, setLoading] = useState(false)
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    window.history.scrollRestoration = 'manual'
+    const saved = sessionStorage.getItem('scrollY')
+    if (saved) window.scrollTo(0, parseInt(saved, 10))
+    return () => sessionStorage.setItem('scrollY', String(window.scrollY))
+  }, [])
+
+  useEffect(() => {
+    if (articles.length === 0) loadMoreArticles()
+  }, [])
+
+  async function loadMoreArticles() {
+    setLoading(true)
+    try {
+      const newBatch = await fetchRandomArticles(CARDS_PER_LOAD)
+      addArticles(newBatch)
+    } catch (error) {
+      console.error('Ошибка загрузки статей:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-100 p-4">
+      <div
+        className="mx-auto max-w-[1280px] grid gap-6"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}
+      >
+        {articles.map((article, index) => (
+          <ArticleCard key={index} article={article} />
+        ))}
+      </div>
+
+      <div className="flex justify-center mt-10">
+        <button
+          onClick={loadMoreArticles}
+          disabled={loading}
+          className="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-black font-semibold rounded-full transition-all duration-300"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          {loading ? 'Загрузка...' : 'Больше статей'}
+        </button>
+      </div>
+    </main>
+  )
 }
