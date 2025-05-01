@@ -1,49 +1,42 @@
-// 📁 src/app/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useArticlesStore } from '@/store/articlesStore'
-import { fetchRandomArticles } from '@/lib/fetchRandomArticles'
-import ArticleCard from '@/components/ArticleCard'
-import type { Article } from '@/types/article'
+import { fetchRandomArticles } from '@lib/fetchRandomArticles'
+import ArticleCard from '@components/ArticleCard'
 
 const CARDS_PER_LOAD = 20
 
-export default function Home() {
+export default function HomePage() {
   const { articles, addArticles } = useArticlesStore()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    window.history.scrollRestoration = 'manual'
-    const saved = sessionStorage.getItem('scrollY')
-    if (saved) window.scrollTo(0, parseInt(saved, 10))
-    return () => sessionStorage.setItem('scrollY', String(window.scrollY))
-  }, [])
-
-  useEffect(() => {
-    if (articles.length === 0) loadMoreArticles()
-  }, [])
-
-  async function loadMoreArticles() {
+  const loadMoreArticles = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
-      const newBatch = await fetchRandomArticles(CARDS_PER_LOAD)
-      addArticles(newBatch)
-    } catch (error) {
-      console.error('Ошибка загрузки статей:', error)
+      const newArticles = await fetchRandomArticles(CARDS_PER_LOAD)
+      addArticles(newArticles)
+    } catch (err) {
+      console.error(err)
+      setError('Не удалось загрузить статьи. Попробуйте ещё раз.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [addArticles])
+
+  useEffect(() => {
+    if (articles.length === 0) loadMoreArticles()
+  }, [articles.length, loadMoreArticles])
 
   return (
-    <main className="min-h-screen bg-gray-100 p-4">
-      <div
-        className="mx-auto max-w-[1280px] grid gap-6"
-        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}
-      >
-        {articles.map((article, index) => (
-          <ArticleCard key={index} article={article} />
+    <main className="min-h-screen bg-gray-100 py-4 px-2 sm:px-4">
+      {error && <div className="text-red-600 text-center font-medium mb-4">{error}</div>}
+
+      <div className="mx-auto max-w-screen-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {articles.map((article) => (
+          <ArticleCard key={article.id} article={article} />
         ))}
       </div>
 

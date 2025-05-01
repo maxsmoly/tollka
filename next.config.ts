@@ -2,9 +2,12 @@ import path from 'path'
 import { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ru.wikipedia.org',
+      },
       {
         protocol: 'https',
         hostname: 'upload.wikimedia.org',
@@ -12,6 +15,7 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack(config) {
+    config.resolve = config.resolve || {}
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       '@components': path.resolve(__dirname, 'src/components'),

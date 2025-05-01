@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import ArticleClient from '../../../components/ArticleClient'
+import ArticleClient from '@/components/ArticleClient'
 
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
-// Объявляем параметр как Promise<{ slug: string }>
 type Params = Promise<{ slug: string }>
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

@@ -2,7 +2,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-
+import Image from 'next/image'
 export default function ArticleClient({
   title,
   thumbnail,
@@ -17,11 +17,16 @@ export default function ArticleClient({
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
       {thumbnail && (
-        <img
-          src={thumbnail}
-          alt={title}
-          className="w-full max-h-[300px] object-cover rounded-xl mb-6"
-        />
+        <div className="mb-6">
+          <Image
+            src={thumbnail}
+            alt={title}
+            width={600}
+            height={400}
+            style={{ height: 'auto' }}
+            className="rounded-xl mx-auto"
+          />
+        </div>
       )}
       <h1 className="text-3xl font-bold mb-6 text-center">{title}</h1>
 
