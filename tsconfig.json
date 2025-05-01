@@ -11,6 +11,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
+    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -19,26 +20,28 @@
     "types": [
       "node"
     ],
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "paths": {
-      "@/components/*": [
-        "components/*"
+      "@/*": [
+        "*"
       ],
-      "@/lib/*": [
+      "@store/*": [
+        "store/*"
+      ],
+      "@lib/*": [
         "lib/*"
       ],
-      "@/types/*": [
+      "@components/*": [
+        "components/*"
+      ],
+      "@types/*": [
         "types/*"
       ],
-      "@/styles/*": [
+      "@styles/*": [
         "styles/*"
-      ],
-      "@/store/*": [
-        "store/*"
       ]
     },
     "incremental": true,
-    "esModuleInterop": true,
     "plugins": [
       {
         "name": "next"
@@ -46,9 +49,9 @@
     ]
   },
   "include": [
+    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
